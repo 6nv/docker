@@ -1,17 +1,23 @@
+# Compose a Prometheus container.
 services:
   prometheus:
+    # Define the image, container name, and restart policy.
     image: prom/prometheus:latest
     container_name: prometheus
     restart: unless-stopped
+    # Publish container ports on the host.
     ports:
       - "9090:9090"
+    # Mount the configuration and persistent metrics storage.
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
+    # Prometheus startup options.
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--web.enable-lifecycle"
 
+# Persistent storage for Prometheus time-series data managed by Docker Compose.
 volumes:
   prometheus_data:
