@@ -1,4 +1,4 @@
-temperature_f{name='Dry Bulb', location='Outdoor'} 75
-temperature_f{name='Wet Bulb', location='Outdoor'} 70
-temperature_f{name='Dry Bulb', location='Indoor'} 70
-temperature_f{name='Wet Bulb', location='Indoor'} 65
+temperature_f{name="Dry Bulb",location="Outdoor"} 75
+temperature_f{name="Wet Bulb",location="Outdoor"} 70
+temperature_f{name="Dry Bulb",location="Indoor"} 70
+temperature_f{name="Wet Bulb",location="Indoor"} 65
