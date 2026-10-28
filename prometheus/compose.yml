@@ -23,7 +23,7 @@ services:
     container_name: static-metrics
     restart: unless-stopped
     volumes:
-      - ./metrics:/usr/share/nginx/html/metrics.txt:ro
+      - ./metrics:/usr/share/nginx/html/metrics:ro
 
 # Persistent storage for Prometheus time-series data managed by Docker Compose.
 volumes:

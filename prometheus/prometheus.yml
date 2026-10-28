@@ -4,13 +4,8 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  # Scrape Prometheus's own metrics from inside its container.
-  - job_name: "prometheus"
-    static_configs:
-      - targets: ["localhost:9090"]
-
-  # Serve metrics/ as a text file over HTTP so Prometheus can scrape it.
-  - job_name: "static_metrics"
-    metrics_path: /metrics.txt
+  # Serve metrics as a text file over HTTP so Prometheus can scrape it.
+  - job_name: 'static_metrics'
+    metrics_path: /metrics
     static_configs:
       - targets: ["static-metrics:80"]
