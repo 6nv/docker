@@ -3,7 +3,7 @@ services:
   prometheus-db:
     # Define the image, container name, and restart policy.
     image: prom/prometheus
-    container_name: prometheus
+    container_name: prometheus-db
     restart: unless-stopped
     # Publish container ports on the host.
     ports:
