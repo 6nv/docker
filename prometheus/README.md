@@ -1,60 +1,78 @@
-# prom-docker
+# Prometheus and static metrics
 
-Simple Docker Compose configuration for running Prometheus as a metrics database
-for Grafana. Prometheus starts with a basic configuration that scrapes its own
-metrics every 15 seconds. Add scrape jobs in `prometheus.yml` to collect
-metrics from other services.
+Docker Compose configuration for running Prometheus with an Nginx server that exposes a static metrics file. Prometheus stores time-series data in a persistent Docker volume and scrapes the static endpoint every 15 seconds.
 
 ## Requirements
 
 - Docker Engine
 - Docker Compose v2 (`docker compose`)
 
-## Start Prometheus
+## Start the services
 
-Run these commands from the repository root:
+From the `prometheus` directory, start Prometheus and the Nginx metrics server:
 
 ```sh
+cd prometheus
 docker compose up -d
 ```
 
-Check that the service is running and view its logs:
+Check the containers and view logs:
 
 ```sh
 docker compose ps
-docker compose logs -f prometheus
+docker compose logs -f
 ```
 
-## Access Prometheus and connect Grafana
+## Access the services
 
-Open the Prometheus web UI at <http://localhost:9090>. Prometheus's HTTP API is
-available at the same address.
+- Prometheus web UI and HTTP API: <http://localhost:9090>
 
-To add Prometheus in Grafana, create a Prometheus data source and set its URL to
-`http://localhost:9090` when Grafana runs directly on your host. If Grafana runs
-in a container, `localhost` refers to that container, not your host. On Docker
-Desktop, use `http://host.docker.internal:9090`; on other setups, configure a
-network route that lets the Grafana container reach the Prometheus service.
-
-## Configure scraping
-
-Edit `prometheus.yml` to add scrape jobs and targets. The current
-configuration only scrapes Prometheus itself. Restart the service to apply
-configuration changes:
+Nginx serves `metrics.txt` internally on port 80. Because this Compose file does not publish an Nginx host port, access the file from inside the container with:
 
 ```sh
-docker compose restart prometheus
+docker compose exec static-metrics wget -qO- http://localhost/metrics.txt
 ```
+
+## Static scrape configuration
+
+`prometheus.yml` contains a `static_metrics` scrape job:
+
+```yaml
+- job_name: 'static_metrics'
+  metrics_path: /metrics.txt
+  static_configs:
+    - targets: ['static-metrics:80']
+```
+
+Prometheus scrapes the `metrics` file served by Nginx at `http://static-metrics:80/metrics.txt` every 15 seconds.
+
+Edit `metrics` and Prometheus will serve the updated file after Nginx detects the bind-mounted file change. Restart Prometheus only when changing `prometheus.yml`:
+
+```sh
+docker compose restart promdb
+```
+
+The file uses Prometheus text exposition format. For example:
+
+```text
+temperature_f{name="Dry Bulb",location="Outdoor"} 75
+```
+
+Each unique label combination creates a separate time series. Labels such as `name` and `location` must always use double quotes.
+
+## Connect Grafana
+
+For Grafana running in a separate Docker Compose network, use the Prometheus service address `http://promdb:9090`. When Grafana runs on the host, use `http://localhost:9090`; use `http://host.docker.internal:9090` for Docker Desktop only when host networking is required.
 
 ## Stop and remove
 
-Stop and remove the container and network while keeping the stored metrics:
+Stop and remove the containers and network while keeping stored metrics:
 
 ```sh
 docker compose down
 ```
 
-To also delete the named `prometheus_data` volume and all stored metrics:
+To delete stored Prometheus metrics as well:
 
 ```sh
 docker compose down -v
