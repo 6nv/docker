@@ -5,6 +5,6 @@ global:
 
 scrape_configs:
   # Scrape Prometheus's own metrics from inside its container.
-  - job_name: "prometheus"
+  - job_name: 'prometheus'
     static_configs:
-      - targets: ["localhost:9090"]
+      - targets: ['localhost:9090']
