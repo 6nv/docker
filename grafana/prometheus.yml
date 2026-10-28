@@ -1,6 +1,7 @@
 global:
-  # Define collection interval.
+  # Define collection and alerting intervals.
   scrape_interval: 15s
+  evaluation_interval: 15s
 
 scrape_configs:
   # Scrape Prometheus's own metrics from inside its container.
