@@ -7,8 +7,7 @@ scrape_configs:
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
-  # Serve metrics as a text file over HTTP so Prometheus can scrape it.
+  # Scrape metrics exported by Node Exporter's text file collector.
   - job_name: 'static_metrics'
-    metrics_path: /metrics.txt
     static_configs:
-      - targets: ['static-metrics:80']
+      - targets: ['node-exporter:9100']

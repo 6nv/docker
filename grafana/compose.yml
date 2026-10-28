@@ -1,13 +1,17 @@
 # Compose Grafana with Prometheus as its metrics database.
 services:
-  nginx:
-    # Define the image, container name, and restart policy.
-    image: nginx:alpine
-    container_name: nginx-static-metrics
+  node-exporter:
+    # Define the Node Exporter image, container name, and restart policy.
+    image: prom/node-exporter
+    container_name: node-exporter
     restart: unless-stopped
-    # Mount the static metrics file as read-only Nginx web content.
+    # Mount static Prometheus text files for Node Exporter's text file collector.
     volumes:
-      - ./metrics:/usr/share/nginx/html:ro
+      - ./metrics:/textfile:ro
+    # Enable text file collection and read metrics from the mounted directory.
+    command:
+      - "--collector.textfile.directory=/textfile"
+
   prometheus:
     # Define the Prometheus image, container name, and restart policy.
     image: prom/prometheus
