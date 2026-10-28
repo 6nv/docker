@@ -29,10 +29,21 @@ services:
     # Publish the Grafana web interface on the host.
     ports:
       - "3000:3000"
+    # Configure the Grafana administrator credentials through a secret file.
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_admin_password
+    secrets:
+      - grafana_admin_password
     # Mount the persistent database and provisioning configuration.
     volumes:
       - grafana_data:/var/lib/grafana
       - ./provisioning:/etc/grafana/provisioning:ro
+
+# Load the Grafana administrator password from an external secret file.
+secrets:
+  grafana_admin_password:
+    file: ./admin_password.txt
 
 # Persistent storage for Prometheus metrics and Grafana data.
 volumes:
