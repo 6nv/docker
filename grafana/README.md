@@ -1,79 +1,110 @@
 # Grafana with Prometheus
 
-Docker Compose configuration for running Grafana and Prometheus together. Grafana publishes port `3000`; Prometheus is kept on the internal Compose network and can only be reached by other services as `http://prometheus:9090`. Prometheus is automatically provisioned as Grafana's default datasource.
+This Docker Compose stack runs Grafana, Prometheus, and Prometheus Node Exporter's text file collector.
 
-## Requirements
+## Services
 
-- Docker Engine
-- Docker Compose v2 (`docker compose`)
+- **Grafana:** <http://localhost:3000>, with port `3000` exposed on the host.
+- **Prometheus:** available to Compose services at `http://prometheus:9090`; it is not published on the host.
+- **Node Exporter:** available at `node-exporter:9100` and serves files from the `metrics/` directory.
 
-## Configure the administrator password
+Startup order is Node Exporter → Prometheus → Grafana.
 
-The default username is `admin`, and the temporary password is stored in [`admin_password.txt`](./admin_password.txt).
+## Start and stop
 
-Change the password before starting Grafana for the first time by replacing its contents:
-
-```sh
-echo 'your-secure-password' > admin_password.txt
-```
-
-The value is mounted as a Docker Compose secret rather than passed directly through a Compose environment variable.
-
-> Grafana only uses the configured password when creating a new installation. If Grafana already has persistent data in the `grafana_data` volume, changing this file does not change the password stored in Grafana. Change it from the Grafana web interface or remove the `grafana_data` volume to reset the installation and password.
-
-## Start and stop the stack
-
-From the `grafana` project folder, first change into the Grafana project directory:
+From the repository root:
 
 ```sh
 cd grafana
 docker compose up -d
-```
-
-Check container status and logs:
-
-```sh
 docker compose ps
-docker compose logs -f
 ```
 
-Stop the stack while preserving Grafana and Prometheus data:
+View logs or stop the stack:
 
 ```sh
+docker compose logs -f
 docker compose down
 ```
 
-Stop the stack and delete its persistent data volumes:
+To also remove Grafana and Prometheus data:
 
 ```sh
 docker compose down -v
 ```
 
-## Access and log in
+## Grafana login
 
-Open <http://localhost:3000> and sign in with:
+Open <http://localhost:3000> and log in with username `admin`.
 
-- Username: `admin`
-- Password: the temporary password in `admin_password.txt`, or the password currently configured in Grafana
-
-After the first login, Grafana may ask you to change the password. The provisioned **Prometheus** datasource is available under **Connections > Data sources** and is selected as the default datasource.
-
-## Useful Docker commands
-
-Recreate the containers after changing `admin_password.txt` or Compose configuration:
+The password is read from [`admin_password.txt`](./admin_password.txt). Before the first startup, change it with:
 
 ```sh
-docker compose up -d --force-recreate
+cd grafana
+printf '%s\n' 'your-secure-password' > admin_password.txt
+docker compose up -d
 ```
 
-Restart Grafana after provisioning or configuration changes:
+Changing the file does not update an existing Grafana installation's password. Grafana stores that password in the `grafana_data` volume; change it through the web interface or delete the volume to reset the installation.
+
+Prometheus is automatically provisioned as Grafana's default datasource at `http://prometheus:9090`.
+
+## Add text file metrics
+
+Prometheus scrapes Node Exporter, which reads every `.prom` file directly inside [`metrics/`](./metrics). The directory is mounted read-only at `/textfile`.
+
+Create a metric file from the Grafana directory:
 
 ```sh
+printf '%s\n' 'building_temperature_celsius{building="main"} 21.4' > metrics/building_temperature.prom
+```
+
+Wait up to the 15-second scrape interval, then query Grafana **Explore**:
+
+```promql
+building_temperature_celsius
+```
+
+No additional Prometheus scrape job is needed; `prometheus.yml` already scrapes `node-exporter:9100`.
+
+## Text file mistakes to avoid
+
+- Use double quotes for labels: `building="main"`, not `building='main'`.
+- End every `.prom` file with a newline.
+- Use the `.prom` extension only.
+- Put one metric sample on each line.
+- Use numeric values: `21.4`, not `warm`.
+- Do not include Markdown, JSON, shell output, or timestamps in metric files.
+- Avoid duplicate metrics or labels within the same label set.
+- Write files atomically to prevent Node Exporter from reading partial content.
+
+`node_textfile_scrape_error` should be `0` when files parse successfully.
+
+## Verify metrics
+
+Use these queries in Grafana **Explore**:
+
+```promql
+up
+node_textfile_scrape_error
+building_temperature_celsius
+```
+
+Check Node Exporter logs with:
+
+```sh
+cd grafana
+docker compose logs -f node-exporter
+```
+
+## Common commands
+
+```sh
+cd grafana
+docker compose ps
+docker compose logs -f prometheus
+docker compose restart node-exporter
+docker compose restart prometheus
 docker compose restart grafana
-```
-
-Open a shell in Grafana:
-
-```sh
 docker compose exec grafana sh
 ```
