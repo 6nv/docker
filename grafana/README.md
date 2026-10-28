@@ -23,29 +23,30 @@ The value is mounted as a Docker Compose secret rather than passed directly thro
 
 ## Start and stop the stack
 
-From the repository root:
+From the `grafana` project folder, first change into the Grafana project directory:
 
 ```sh
-docker compose -f grafana/compose.yml up -d
+cd grafana
+docker compose up -d
 ```
 
 Check container status and logs:
 
 ```sh
-docker compose -f grafana/compose.yml ps
-docker compose -f grafana/compose.yml logs -f
+docker compose ps
+docker compose logs -f
 ```
 
 Stop the stack while preserving Grafana and Prometheus data:
 
 ```sh
-docker compose -f grafana/compose.yml down
+docker compose down
 ```
 
 Stop the stack and delete its persistent data volumes:
 
 ```sh
-docker compose -f grafana/compose.yml down -v
+docker compose down -v
 ```
 
 ## Access and log in
@@ -62,17 +63,17 @@ After the first login, Grafana may ask you to change the password. The provision
 Recreate the containers after changing `admin_password.txt` or Compose configuration:
 
 ```sh
-docker compose -f grafana/compose.yml up -d --force-recreate
+docker compose up -d --force-recreate
 ```
 
 Restart Grafana after provisioning or configuration changes:
 
 ```sh
-docker compose -f grafana/compose.yml restart grafana
+docker compose restart grafana
 ```
 
 Open a shell in Grafana:
 
 ```sh
-docker compose -f grafana/compose.yml exec grafana sh
+docker compose exec grafana sh
 ```
