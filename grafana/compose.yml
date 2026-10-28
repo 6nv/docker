@@ -5,9 +5,6 @@ services:
     image: prom/prometheus
     container_name: prometheus
     restart: unless-stopped
-    # Keep Prometheus reachable only to other Compose services on the internal network.
-    expose:
-      - "9090"
     # Mount the scrape configuration and persistent metrics storage.
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
