@@ -14,7 +14,7 @@ The default username is `admin`, and the temporary password is stored in [`admin
 Change the password before starting Grafana for the first time by replacing its contents:
 
 ```sh
-printf '%s\n' 'your-secure-password' > admin_password.txt
+echo 'your-secure-password' > admin_password.txt
 ```
 
 The value is mounted as a Docker Compose secret rather than passed directly through a Compose environment variable.
