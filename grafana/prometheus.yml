@@ -8,6 +8,6 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
   # Scrape metrics exported by Node Exporter's text file collector.
-  - job_name: 'static_metrics'
+  - job_name: 'textfile_collector'
     static_configs:
       - targets: ['node-exporter:9100']
