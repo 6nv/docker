@@ -1,13 +1,30 @@
-# Compose a Grafana container.
+# Compose Grafana with Prometheus as its metrics database.
 services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+
   grafana:
     image: grafana/grafana
     container_name: grafana
     restart: unless-stopped
+    depends_on:
+      - prometheus
     ports:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
 
 volumes:
+  prometheus_data:
   grafana_data:
