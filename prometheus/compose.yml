@@ -18,6 +18,13 @@ services:
       - "--storage.tsdb.path=/prometheus"
       - "--web.enable-lifecycle"
 
+  static-metrics:
+    image: nginx:alpine
+    container_name: static-metrics
+    restart: unless-stopped
+    volumes:
+      - ./metrics:/usr/share/nginx/html/metrics.txt:ro
+
 # Persistent storage for Prometheus time-series data managed by Docker Compose.
 volumes:
   prometheus_data:
