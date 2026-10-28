@@ -17,6 +17,9 @@ services:
     image: prom/prometheus
     container_name: prometheus
     restart: unless-stopped
+    # Start Prometheus after Node Exporter's metrics endpoint is available.
+    depends_on:
+      - node-exporter
     # Mount the scrape configuration and persistent metrics storage.
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
