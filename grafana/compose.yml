@@ -1,31 +1,40 @@
 # Compose Grafana with Prometheus as its metrics database.
 services:
   prometheus:
+    # Define the Prometheus image, container name, and restart policy.
     image: prom/prometheus
     container_name: prometheus
     restart: unless-stopped
+    # Publish the Prometheus web interface on the host.
     ports:
       - "9090:9090"
+    # Mount the scrape configuration and persistent metrics storage.
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
+    # Configure Prometheus storage, startup, and runtime options.
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--web.enable-lifecycle"
 
   grafana:
+    # Define the Grafana image, container name, and restart policy.
     image: grafana/grafana
     container_name: grafana
     restart: unless-stopped
+    # Start Grafana after its Prometheus dependency.
     depends_on:
       - prometheus
+    # Publish the Grafana web interface on the host.
     ports:
       - "3000:3000"
+    # Mount the persistent database and provisioning configuration.
     volumes:
       - grafana_data:/var/lib/grafana
       - ./provisioning:/etc/grafana/provisioning:ro
 
+# Persistent storage for Prometheus metrics and Grafana data.
 volumes:
   prometheus_data:
   grafana_data:
