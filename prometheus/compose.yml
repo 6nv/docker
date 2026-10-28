@@ -1,4 +1,4 @@
-# Compose a Prometheus container.
+# Compose a Prometheus container and Nginx web host.
 services:
   promdb:
     # Define the image, container name, and restart policy.
@@ -19,9 +19,11 @@ services:
       - '--web.enable-lifecycle'
 
   static-metrics:
+    # Define the image, container name, and restart policy.
     image: nginx:alpine
     container_name: static-metrics
     restart: unless-stopped
+    # Mount the static metrics file as read-only Nginx web content.
     volumes:
       - ./metrics:/usr/share/nginx/html/metrics.txt:ro
 
