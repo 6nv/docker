@@ -1,0 +1,10 @@
+global:
+  # Define collection and alerting intervals.
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Scrape Prometheus's own metrics from inside its container.
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
