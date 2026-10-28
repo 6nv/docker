@@ -1,10 +1,8 @@
-# Docker Compose Files
+# Docker Monitoring Examples
 
-Contains configuration for various projects involving Docker.
+This repository contains Docker Compose projects for collecting and visualizing metrics with Prometheus and Grafana.
 
-## Instructions
+## Requirements
 
-```
-cd ${project}
-docker compose up -d
-```
+- Docker Engine
+- Docker Compose v2
