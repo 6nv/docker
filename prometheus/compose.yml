@@ -5,6 +5,9 @@ services:
     image: prom/prometheus
     container_name: promdb
     restart: unless-stopped
+    # Start the static metrics host before Prometheus.
+    depends_on:
+      - static-metrics
     # Publish container ports on the host.
     ports:
       - '9090:9090'
